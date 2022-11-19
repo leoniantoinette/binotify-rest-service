@@ -22,7 +22,7 @@ app.get("/", (req, res) => {
 
 // get user song
 app.get("/user/:user_id/songs", (req, res) => {
-  let user_id = req.query.user_id;
+  let user_id = req.params.user_id;
   db.query(
     "SELECT * FROM Song WHERE penyanyi_id = ?",
     [user_id],
@@ -38,13 +38,13 @@ app.get("/user/:user_id/songs", (req, res) => {
 
 // update song title and audio file path
 app.put("/user/:user_id/songs/:song_id", (req, res) => {
-  let user_id = req.query.user_id;
-  let song_id = req.query.song_id;
+  let user_id = req.params.user_id;
+  let song_id = req.params.song_id;
   let title = req.body.title;
-  let audio_file_path = req.body.audio_file_path;
+  let audio_path = req.body.audio_path;
   db.query(
-    "UPDATE Song SET Judul = ?, audio_file_path = ? WHERE id = ?",
-    [title, audio_file_path, song_id],
+    "UPDATE Song SET Judul = ?, audio_path = ? WHERE penyanyi_id = ? AND song_id = ?",
+    [title, audio_path, user_id, song_id],
     (err, result) => {
       if (err) {
         console.log(err);
@@ -57,9 +57,9 @@ app.put("/user/:user_id/songs/:song_id", (req, res) => {
 
 // update song title by id
 app.put("/user/:user_id/songs/title/:song_id", (req, res) => {
-  let user_id = req.query.user_id;
-  let song_id = req.query.song_id;
-  let title = req.query.title;
+  let user_id = req.params.user_id;
+  let song_id = req.params.song_id;
+  let title = req.body.title;
 
   db.query(
     "UPDATE Song SET Judul = ? WHERE penyanyi_id = ? AND song_id = ?",
@@ -76,9 +76,9 @@ app.put("/user/:user_id/songs/title/:song_id", (req, res) => {
 
 // update audio path
 app.put("/user/:user_id/songs/audio/:song_id", (req, res) => {
-  let user_id = req.query.user_id;
-  let song_id = req.query.song_id;
-  let audio_path = req.query.audio_path;
+  let user_id = req.params.user_id;
+  let song_id = req.params.song_id;
+  let audio_path = req.body.audio_path;
 
   db.query(
     "UPDATE Song SET Audio_path = ? WHERE penyanyi_id = ? AND song_id = ?",
@@ -95,9 +95,9 @@ app.put("/user/:user_id/songs/audio/:song_id", (req, res) => {
 
 // create song
 app.post("/user/:user_id/songs", (req, res) => {
-  let user_id = req.query.user_id;
-  let title = req.query.title;
-  let audio_path = req.query.audio_path;
+  let user_id = req.params.user_id;
+  let title = req.body.title;
+  let audio_path = req.body.audio_path;
 
   db.query(
     "INSERT INTO Song (penyanyi_id, Judul, audio_path) VALUES (?, ?, ?)",
@@ -114,8 +114,8 @@ app.post("/user/:user_id/songs", (req, res) => {
 
 // delete song
 app.delete("/user/:user_id/songs/:song_id", (req, res) => {
-  let user_id = req.query.user_id;
-  let song_id = req.query.song_id;
+  let user_id = req.params.user_id;
+  let song_id = req.params.song_id;
   db.query(
     "DELETE FROM Song WHERE penyanyi_id = ? AND song_id = ?",
     [user_id, song_id],
