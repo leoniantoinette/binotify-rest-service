@@ -15,10 +15,4 @@ connection.connect((error) => {
   console.log("Successfully connected to the database.");
 });
 
-connection.query("SELECT 1 + 1 AS solution", (err, rows, fields) => {
-  if (err) throw err;
-
-  console.log("The solution is: ", rows[0].solution);
-});
-
 module.exports = connection;
