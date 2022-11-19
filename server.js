@@ -129,6 +129,19 @@ app.delete("/user/:user_id/songs/:song_id", (req, res) => {
   );
 });
 
+// endpoint get list penyanyi
+app.get("/api/list-penyanyi", (req, res) => {
+  db.query(
+    "SELECT user_id, name FROM user WHERE isAdmin = 0",
+    (err, result) => {
+      if (err) {
+        throw err;
+      }
+      res.status(200).send(result);
+    }
+  );
+});
+
 app.listen(PORT, () => {
   console.log(`Server listening at http://localhost:${PORT}`);
 });
