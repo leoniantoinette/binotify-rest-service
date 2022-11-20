@@ -3,9 +3,9 @@ const cors = require("cors");
 const db = require("./services/db.js");
 const app = express();
 
-const PORT = 3000;
+const PORT = 8080;
 var corsOptions = {
-    origin: "http://localhost:3000",
+    origin: "http://localhost:8080",
 };
 
 app.use(express.json());
@@ -152,7 +152,7 @@ app.post('/login', (req, res) => {
             if (err) {
                 res.send({ err: err });
             }
-            if (result) {
+            if (result.length > 0) {
                 res.send(result);
             } else {
                 res.send({ message: "Wrong username/password combination!" });
@@ -177,7 +177,8 @@ app.post('/registers', (req, res) => {
             }
         });
     } else {
-        res.send("Register belum selesa");
+        res.send({
+            message: "Register belum selesai"
+        });
     }
-
 });
