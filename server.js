@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const db = require("./services/db.js");
+const checkSubscription = require("./services/checkSubscription.js");
 const app = express();
 const PORT = 3001;
 var bodyParser = require("body-parser");
@@ -160,6 +161,25 @@ app.get("/api/list-penyanyi", (req, res) => {
       res.status(200).send(result);
     }
   );
+});
+
+// endpoint get list lagu dari penyanyi
+app.get("/api/list-lagu/user/:user_id/penyanyi/:penyanyi_id", (req, res) => {
+  let user_id = req.params.user_id;
+  let penyanyi_id = req.params.penyanyi_id;
+  let isSubscribed = checkSubscription.checkSubscription(penyanyi_id, user_id);
+  if (isSubscribed) {
+    db.query(
+      "SELECT * FROM Song WHERE penyanyi_id = ?",
+      [penyanyi_id],
+      (err, result) => {
+        if (err) {
+          throw err;
+        }
+        res.status(200).send(result);
+      }
+    );
+  }
 });
 
 app.listen(PORT, () => {
