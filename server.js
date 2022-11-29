@@ -3,8 +3,8 @@ const cors = require("cors");
 const db = require("./services/db.js");
 const checkSubscription = require("./services/checkSubscription.js");
 const app = express();
-
-const PORT = 3000;
+const jwt = require("jsonwebtoken");
+const PORT = 3001;
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
@@ -197,6 +197,24 @@ app.listen(PORT, () => {
     console.log(`Server listening at http://localhost:${PORT}`);
 });
 
+const verifyJWT = (req, res, next) => {
+    const token = req.headers["x-access-token"];
+    if (!token) {
+        res.send("We need a token, please give it to us next time!");
+    } else {
+        jwt.verify(token, "jwtSecret", (err, decoded) => {
+            if (err) {
+                res.json({ auth: false, message: "You failed to authenticate" });
+            } else {
+                req.userId = decoded.id;
+                next();
+            }
+        });
+    }
+};
+app.get("isUserLoggedIn", verifyJWT, (req, res) => {
+    res.send("yo, you are logged in");
+});
 app.get("/login", (req, res) => {
     if (req.session.user) {
         res.send({ loggedIn: true, user: req.session.user });
@@ -218,15 +236,18 @@ app.post("/login", (req, res) => {
             if (result.length > 0) {
                 bcrypt.compare(password, result[0].password, (error, response) => {
                     if (response) {
-                        //res.session.user = result;
-                        //console.log(req.session.user);
-                        res.send(result);
+                        const id = result[0].user_id;
+                        const token = jwt.sign({ id }, "jwtSecret", {
+                            expiresIn: 300,
+                        })
+                        req.session.user = result;
+                        res.json({ auth: true, token: token, result: result });
                     } else {
-                        res.send({ message: "Wrong username/password combination!" });
+                        res.json({ auth: false, message: "Wrong username/password combination!" })
                     }
                 });
             } else {
-                res.send({ message: "User doesn't exist" });
+                res.json({ auth: false, message: "User doesn't exist" })
             }
         }
     );
