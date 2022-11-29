@@ -4,17 +4,68 @@ const db = require("./services/db.js");
 const checkSubscription = require("./services/checkSubscription.js");
 const app = express();
 const jwt = require("jsonwebtoken");
-const PORT = 3000;
+const PORT = 3001;
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
 const bcrypt = require("bcrypt");
+const soapRequest = require("easy-soap-request");
+const xml2js = require("xml2js");
 const saltRounds = 10;
 var corsOptions = {
     origin: "http://localhost:3000",
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
 };
+
+const checkSubscription = (req, res) => {
+    let user_id = req.params.user_id;
+    let penyanyi_id = req.params.penyanyi_id;
+
+    const url = "http://localhost:8081/service/subscription";
+    const headers_req = {
+        "Content-Type": "text/xml;charset=UTF-8",
+    };
+    const xml = `
+      <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/">
+        <Body>
+            <checkSubscription xmlns="http://services.binotify/">
+                <arg0 xmlns="">${penyanyi_id}</arg0>
+                <arg1 xmlns="">${user_id}</arg1>
+            </checkSubscription>
+        </Body>
+    </Envelope>`;
+
+    (async() => {
+        const { response } = await soapRequest({
+            url: url,
+            headers: headers_req,
+            xml: xml,
+        });
+        const { headers, body, statusCode } = response;
+        var parser = new xml2js.Parser();
+        parser.parseString(body, function(err, result) {
+            var isSubscribed =
+                result["S:Envelope"]["S:Body"][0]["ns2:checkSubscriptionResponse"][0]
+                .return[0];
+            if (statusCode == 200 && isSubscribed == "true") {
+                db.query(
+                    "SELECT * FROM Song WHERE penyanyi_id = ?", [penyanyi_id],
+                    (err, result) => {
+                        if (err) {
+                            throw err;
+                        }
+                        res.status(200).send(result);
+                    }
+                );
+            } else {
+                res.status(200).send();
+            }
+        });
+    })();
+};
+
+
 
 app.use(express.json());
 app.use(cors(corsOptions));
