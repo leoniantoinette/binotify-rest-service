@@ -2,10 +2,18 @@ const express = require("express");
 const cors = require("cors");
 const db = require("./services/db.js");
 const app = express();
+const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
+const session = require("express-session");
 
-const PORT = 8080;
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
+
+const PORT = 3000;
 var corsOptions = {
-    origin: "http://localhost:8080",
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
 };
 
 app.use(express.json());
@@ -20,7 +28,20 @@ app.get("/", (req, res) => {
     // });
 });
 
+app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use(
+    session({
+        key: "userId",
+        secret: "subscribe",
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            expires: 60 * 60 * 24,
+        },
+    })
+);
 // get user song
 app.get("/user/:user_id/songs", (req, res) => {
     let user_id = req.params.user_id;
@@ -141,44 +162,65 @@ app.listen(PORT, () => {
     console.log(`Server listening at http://localhost:${PORT}`);
 });
 
+app.get("/login", (req, res) => {
+    if (req.session.user) {
+        res.send({ loggedIn: true, user: req.session.user });
+    } else {
+        res.send({ loggedIn: false });
+    }
+});
 //login sebagai penyanyi
-app.post('/login', (req, res) => {
+app.post("/login", (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
 
     db.query(
-        "SELECT * FROM user WHERE username = ? AND password = ?", [username, password],
+        "SELECT * FROM user WHERE username = ? ;", username,
         (err, result) => {
             if (err) {
                 res.send({ err: err });
             }
             if (result.length > 0) {
-                res.send(result);
+                bcrypt.compare(password, result[0].password, (error, response) => {
+                    if (response) {
+                        //res.session.user = result;
+                        //console.log(req.session.user);
+                        res.send(result);
+                    } else {
+                        res.send({ message: "Wrong username/password combination!" });
+                    }
+                });
             } else {
-                res.send({ message: "Wrong username/password combination!" });
+                res.send({ message: "User doesn't exist" });
             }
-        });
-
+        }
+    );
 });
 
+
 //register sebagai penyanyi
-app.post('/registers', (req, res) => {
+app.post("/registers", (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
     const name = req.body.name;
     const email = req.body.email;
     const isAdmin = 0;
-    if (username != "" && password != "" && name != "" && email != "") {
-        db.query("INSERT INTO user(email, password, username, name, isAdmin) VALUES (?,?,?,?,?)", [email, password, username, name, isAdmin], (err, result) => {
-            if (err) {
-                console.log(err);
-            } else {
-                res.send("Register berhasil");
-            }
-        });
-    } else {
-        res.send({
-            message: "Register belum selesai"
-        });
-    }
+    bcrypt.hash(password, saltRounds, (err, hash) => {
+        if (username != "" && password != "" && name != "" && email != "") {
+            db.query(
+                "INSERT INTO user(email, password, username, name, isAdmin) VALUES (?,?,?,?,?)", [email, hash, username, name, isAdmin],
+                (err, result) => {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        res.send("Register berhasil");
+                    }
+                }
+            );
+        } else {
+            res.send({
+                message: "Register belum selesai",
+            });
+        }
+    });
 });
