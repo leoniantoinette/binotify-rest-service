@@ -1,15 +1,15 @@
 const express = require("express");
 const cors = require("cors");
 const db = require("./services/db.js");
+const checkSubscription = require("./services/checkSubscription.js");
 const app = express();
+
+const PORT = 3000;
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
-
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
-
-const PORT = 3000;
 var corsOptions = {
     origin: "http://localhost:3000",
     methods: ["GET", "POST", "PUT", "DELETE"],
@@ -57,6 +57,22 @@ app.get("/user/:user_id/songs", (req, res) => {
     );
 });
 
+// get song by id
+app.get("/user/:user_id/songs/:song_id", (req, res) => {
+    let song_id = req.params.song_id;
+    let user_id = req.params.user_id;
+    db.query(
+        "SELECT * FROM Song WHERE penyanyi_id = ? AND song_id = ?", [user_id, song_id],
+        (err, result) => {
+            if (err) {
+                console.log(err);
+            } else {
+                res.send(result);
+            }
+        }
+    );
+});
+
 // update song title and audio file path
 app.put("/user/:user_id/songs/:song_id", (req, res) => {
     let user_id = req.params.user_id;
@@ -80,6 +96,7 @@ app.put("/user/:user_id/songs/title/:song_id", (req, res) => {
     let user_id = req.params.user_id;
     let song_id = req.params.song_id;
     let title = req.body.title;
+    console.log(req.body);
 
     db.query(
         "UPDATE Song SET Judul = ? WHERE penyanyi_id = ? AND song_id = ?", [title, user_id, song_id],
@@ -156,6 +173,24 @@ app.get("/api/list-penyanyi", (req, res) => {
             res.status(200).send(result);
         }
     );
+});
+
+// endpoint get list lagu dari penyanyi
+app.get("/api/list-lagu/user/:user_id/penyanyi/:penyanyi_id", (req, res) => {
+    let user_id = req.params.user_id;
+    let penyanyi_id = req.params.penyanyi_id;
+    let isSubscribed = checkSubscription.checkSubscription(penyanyi_id, user_id);
+    if (isSubscribed) {
+        db.query(
+            "SELECT * FROM Song WHERE penyanyi_id = ?", [penyanyi_id],
+            (err, result) => {
+                if (err) {
+                    throw err;
+                }
+                res.status(200).send(result);
+            }
+        );
+    }
 });
 
 app.listen(PORT, () => {
