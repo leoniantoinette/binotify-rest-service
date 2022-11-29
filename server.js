@@ -4,7 +4,7 @@ const db = require("./services/db.js");
 const checkSubscription = require("./services/checkSubscription.js");
 const app = express();
 const jwt = require("jsonwebtoken");
-const PORT = 3001;
+const PORT = 3000;
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
@@ -212,6 +212,7 @@ const verifyJWT = (req, res, next) => {
         });
     }
 };
+
 app.get("isUserLoggedIn", verifyJWT, (req, res) => {
     res.send("yo, you are logged in");
 });
@@ -243,11 +244,12 @@ app.post("/login", (req, res) => {
                         req.session.user = result;
                         res.json({ auth: true, token: token, result: result });
                     } else {
-                        res.json({ auth: false, message: "Wrong username/password combination!" })
+                        res.send({ message: "Wrong username/password combination!" })
                     }
                 });
             } else {
-                res.json({ auth: false, message: "User doesn't exist" })
+                res.send({ message: "User doesn't exist" });
+
             }
         }
     );
