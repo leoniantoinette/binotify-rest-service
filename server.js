@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const db = require("./services/db.js");
-const checkSubscription = require("./services/checkSubscription.js");
+
 const app = express();
 const jwt = require("jsonwebtoken");
 const PORT = 3001;
@@ -274,6 +274,7 @@ app.get("/login", (req, res) => {
         res.send({ loggedIn: false });
     }
 });
+
 //login sebagai penyanyi
 app.post("/login", (req, res) => {
     const username = req.body.username;
@@ -317,18 +318,27 @@ app.post("/registers", (req, res) => {
     bcrypt.hash(password, saltRounds, (err, hash) => {
         if (username != "" && password != "" && name != "" && email != "") {
             db.query(
-                "INSERT INTO user(email, password, username, name, isAdmin) VALUES (?,?,?,?,?)", [email, hash, username, name, isAdmin],
-                (err, result) => {
-                    if (err) {
-                        console.log(err);
+                "SELECT * FROM user WHERE username = ? ;", username, (
+                    err, result) => {
+                    if (result.length > 0) {
+                        res.send({ message: "Username Already Exist" });
                     } else {
-                        res.send("Register berhasil");
+                        db.query(
+                            "INSERT INTO user(email, password, username, name, isAdmin) VALUES (?,?,?,?,?)", [email, hash, username, name, isAdmin],
+                            (err, result) => {
+                                if (err) {
+                                    console.log(err);
+                                } else {
+                                    res.send("Register berhasil");
+                                }
+                            }
+                        )
                     }
-                }
-            );
+                });
+
         } else {
             res.send({
-                message: "Register belum selesai",
+                message: "Register belum selesai, Isi semua field!!",
             });
         }
     });
