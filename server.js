@@ -329,7 +329,17 @@ app.post("/registers", (req, res) => {
                                 if (err) {
                                     console.log(err);
                                 } else {
-                                    res.send("Register berhasil");
+                                    db.query(
+                                        "SELECT * FROM user WHERE username = ? ;", username,
+                                        (err, hasil) => {
+                                            if (err) {
+                                                res.send({ err: err });
+                                            }
+                                            if (hasil.length > 0) {
+                                                req.session.user = hasil;
+                                            }
+                                            res.send("Register berhasil");
+                                        });
                                 }
                             }
                         )
