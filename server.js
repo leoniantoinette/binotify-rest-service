@@ -318,10 +318,10 @@ app.post("/registers", (req, res) => {
     bcrypt.hash(password, saltRounds, (err, hash) => {
         if (username != "" && password != "" && name != "" && email != "") {
             db.query(
-                "SELECT * FROM user WHERE username = ? ;", username, (
+                "SELECT * FROM user WHERE username = ? or email= ? ;", [username, email], (
                     err, result) => {
                     if (result.length > 0) {
-                        res.send({ message: "Username Already Exist" });
+                        res.send({ message: "Username Or Email Already Exist" });
                     } else {
                         db.query(
                             "INSERT INTO user(email, password, username, name, isAdmin) VALUES (?,?,?,?,?)", [email, hash, username, name, isAdmin],
