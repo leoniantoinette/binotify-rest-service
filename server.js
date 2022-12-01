@@ -19,6 +19,8 @@ var corsOptions = {
 };
 
 const checkSubscription = (req, res) => {
+  const ip = req.socket.remoteAddress;
+  const endpoint = "/service/subscription";
   let user_id = req.params.user_id;
   let penyanyi_id = req.params.penyanyi_id;
 
@@ -29,10 +31,12 @@ const checkSubscription = (req, res) => {
   const xml = `
     <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/">
       <Body>
-          <checkSubscription xmlns="http://services.binotify/">
-              <arg0 xmlns="">${penyanyi_id}</arg0>
-              <arg1 xmlns="">${user_id}</arg1>
-          </checkSubscription>
+        <checkSubscription xmlns="http://services.binotify/">
+          <arg0 xmlns="">${ip}</arg0>
+          <arg1 xmlns="">${endpoint}</arg1>
+          <arg2 xmlns="">${penyanyi_id}</arg2>
+          <arg3 xmlns="">${user_id}</arg3>
+        </checkSubscription>
       </Body>
   </Envelope>`;
 
@@ -67,6 +71,8 @@ const checkSubscription = (req, res) => {
 };
 
 const getSubscription = (req, res) => {
+  const ip = req.socket.remoteAddress;
+  const endpoint = "/service/subscription";
   const url = "http://localhost:8081/service/subscription";
   const headers_req = {
     "Content-Type": "text/xml;charset=UTF-8",
@@ -74,7 +80,10 @@ const getSubscription = (req, res) => {
   const xml = `
   <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/">
     <Body>
-        <getSubscription xmlns="http://services.binotify/"/>
+      <getSubscription xmlns="http://services.binotify/"/>
+        <arg0 xmlns="">${ip}</arg0>
+        <arg1 xmlns="">${endpoint}</arg1>
+      </getSubscription>
     </Body>
   </Envelope>`;
 
@@ -117,6 +126,8 @@ const getSubscription = (req, res) => {
 };
 
 const approveSubscription = (req, res) => {
+  const ip = req.socket.remoteAddress;
+  const endpoint = "/service/subscription";
   let creatorID = req.body.creatorID;
   let subscriberID = req.body.subscriberID;
 
@@ -127,10 +138,12 @@ const approveSubscription = (req, res) => {
   const xml = `
     <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/">
       <Body>
-          <approveSubscription xmlns="http://services.binotify/">
-              <arg0 xmlns="">${creatorID}</arg0>
-              <arg1 xmlns="">${subscriberID}</arg1>
-          </approveSubscription>
+        <approveSubscription xmlns="http://services.binotify/">
+          <arg0 xmlns="">${ip}</arg0>
+          <arg1 xmlns="">${endpoint}</arg1>
+          <arg2 xmlns="">${creatorID}</arg2>
+          <arg3 xmlns="">${subscriberID}</arg3>
+        </approveSubscription>
       </Body>
   </Envelope>`;
 
@@ -156,6 +169,8 @@ const approveSubscription = (req, res) => {
 };
 
 const rejectSubscription = (req, res) => {
+  const ip = req.socket.remoteAddress;
+  const endpoint = "/service/subscription";
   let creatorID = req.body.creatorID;
   let subscriberID = req.body.subscriberID;
 
@@ -166,10 +181,12 @@ const rejectSubscription = (req, res) => {
   const xml = `
     <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/">
       <Body>
-          <rejectSubscription xmlns="http://services.binotify/">
-              <arg0 xmlns="">${creatorID}</arg0>
-              <arg1 xmlns="">${subscriberID}</arg1>
-          </rejectSubscription>
+        <rejectSubscription xmlns="http://services.binotify/">
+          <arg0 xmlns="">${ip}</arg0>
+          <arg1 xmlns="">${endpoint}</arg1>
+          <arg2 xmlns="">${creatorID}</arg2>
+          <arg3 xmlns="">${subscriberID}</arg3>
+        </rejectSubscription>
       </Body>
   </Envelope>`;
 
