@@ -116,6 +116,84 @@ const getSubscription = (req, res) => {
   })();
 };
 
+const approveSubscription = (req, res) => {
+  let creatorID = req.body.creatorID;
+  let subscriberID = req.body.subscriberID;
+
+  const url = "http://localhost:8081/service/subscription";
+  const headers_req = {
+    "Content-Type": "text/xml;charset=UTF-8",
+  };
+  const xml = `
+    <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/">
+      <Body>
+          <approveSubscription xmlns="http://services.binotify/">
+              <arg0 xmlns="">${creatorID}</arg0>
+              <arg1 xmlns="">${subscriberID}</arg1>
+          </approveSubscription>
+      </Body>
+  </Envelope>`;
+
+  (async () => {
+    const { response } = await soapRequest({
+      url: url,
+      headers: headers_req,
+      xml: xml,
+    });
+    const { headers, body, statusCode } = response;
+    var parser = new xml2js.Parser();
+    parser.parseString(body, function (err, result) {
+      var isSuccess =
+        result["S:Envelope"]["S:Body"][0]["ns2:approveSubscriptionResponse"][0]
+          .return[0];
+      if (statusCode == 200 && isSuccess == "true") {
+        res.status(200).send(true);
+      } else {
+        res.status(200).send(false);
+      }
+    });
+  })();
+};
+
+const rejectSubscription = (req, res) => {
+  let creatorID = req.body.creatorID;
+  let subscriberID = req.body.subscriberID;
+
+  const url = "http://localhost:8081/service/subscription";
+  const headers_req = {
+    "Content-Type": "text/xml;charset=UTF-8",
+  };
+  const xml = `
+    <Envelope xmlns="http://schemas.xmlsoap.org/soap/envelope/">
+      <Body>
+          <rejectSubscription xmlns="http://services.binotify/">
+              <arg0 xmlns="">${creatorID}</arg0>
+              <arg1 xmlns="">${subscriberID}</arg1>
+          </rejectSubscription>
+      </Body>
+  </Envelope>`;
+
+  (async () => {
+    const { response } = await soapRequest({
+      url: url,
+      headers: headers_req,
+      xml: xml,
+    });
+    const { headers, body, statusCode } = response;
+    var parser = new xml2js.Parser();
+    parser.parseString(body, function (err, result) {
+      var isSuccess =
+        result["S:Envelope"]["S:Body"][0]["ns2:rejectSubscriptionResponse"][0]
+          .return[0];
+      if (statusCode == 200 && isSuccess == "true") {
+        res.status(200).send(true);
+      } else {
+        res.status(200).send(false);
+      }
+    });
+  })();
+};
+
 app.use(express.json());
 app.use(cors(corsOptions));
 app.get("/", (req, res) => {
@@ -290,6 +368,12 @@ app.get(
 
 // endpoint get list subscription
 app.get("/api/list-subscription", getSubscription);
+
+// approve subscription
+app.post("/approve-subscription", approveSubscription);
+
+// approve subscription
+app.post("/reject-subscription", rejectSubscription);
 
 app.listen(PORT, () => {
   console.log(`Server listening at http://localhost:${PORT}`);
