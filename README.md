@@ -5,6 +5,11 @@
 ## Description Web Service
 
 ## Skema Basis Data
+Terdapat 2 tabel basis data yang digunakan yaitu sebagai berikut:
+1. Tabel song, yang terdiri atas atribut song_id, Judul, Audio_path, penyanyi_id
+2. Tabel user, yang terdiri atas atribut user_id, email, password, username, name, isAdmin
+Berikut skema dari basis data yang digunakan :
+<img src="database/diagram.png"/>
 
 ## Endpoint, Payload, dan response API
 
