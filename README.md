@@ -11,9 +11,6 @@ Terdapat 2 tabel basis data yang digunakan yaitu sebagai berikut:
 Berikut skema dari basis data yang digunakan :
 <img src="database/diagram.png"/>
 
-## Endpoint, Payload, dan response API
-
-
 ## How To Install
 1. Teks Editor yang kami sarankan adalah Visual Studio Code yang panduan download dan installnya dapat dilihat pada tautan berikut ini [vscode](https://www.belajarisme.com/tutorial/install-vscode/#:~:text=Sekarang%20mari%20kita%20install%20VSCode%20dengan%20cara%20berikut,Select%20Star%20Menu%20Folder%20klik%20Next.%20More%20items)
 2. Panduan instalasi JavaScript dapat dilihat pada tautan berikut [JS](https://www.duniailkom.com/javascript-uncover-panduan-belajar-javascript-untuk-pemula/)
