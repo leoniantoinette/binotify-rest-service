@@ -39,6 +39,7 @@ const checkSubscription = (req, res) => {
           <arg1 xmlns="">${endpoint}</arg1>
           <arg2 xmlns="">${penyanyi_id}</arg2>
           <arg3 xmlns="">${user_id}</arg3>
+          <arg4 xmlns="">${API_KEY}</arg4>
         </checkSubscription>
       </Body>
   </Envelope>`;
